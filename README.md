@@ -1,6 +1,6 @@
 # Clipped Asset Roles
 
-Allows you to specify 'asset roles', so you can add more meaning to a relation between a page and an asset. For example a page can have 5 images attached, and 4 of those have a role of 'portfolio image'. With radius you can then render just those 4 images into a gallery.
+Allows you to specify 'asset roles', so you can add meaning to a relation between a page and an asset. For example a page can have 5 images attached, and 4 of those have a role of 'portfolio image'. With radius you can then render just those 4 images into a gallery.
 
 ## Requirements
 
@@ -8,7 +8,13 @@ Allows you to specify 'asset roles', so you can add more meaning to a relation b
 
 ## Configuration
 
-Set the asset roles for your site in Radiant::Config["clipped\_asset\_roles.roles"] with format "role1:one,role2:many". The default config defines 'page icon' and 'portfolio_imgs' roles that you will probably want to replace with your own.
+Set the asset roles for your site in Radiant::Config["clipped\_asset\_roles.roles"] with format "role1:one,role2:many". The default config defines 'page icon' and 'portfolio' roles that you will probably want to replace with your own.
+
+You can customize the roles available to a certain page by adding a page field 'asset\_roles' or 'children\_asset\_roles' using the same role:association_type format. 
+The latter will overwrite the roles for all direct children of the page on which it is defined.
+
+Finally, you can define 'extra\_asset\_roles' or 'extra\_children\_asset\_roles' which will add the roles to the ones defined in Radiant::Config.
+Configuration through a parent page will be overwritten by configuration on the child page if applicable.
 
 ## Usage
 
@@ -20,7 +26,7 @@ Then, you could use this radius code to select the page_icon e.g. for the curren
 
 or do things like:
 
-    <ul class="gallery"><r:assets:each roles="portfolio_imgs" order="desc" by="position">
+    <ul class="gallery"><r:assets:each roles="portfolio" order="desc" by="position">
       <li><r:asset:image size="thumbnail"/></li>
     </ul></r:assets:each>
 
