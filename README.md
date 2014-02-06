@@ -22,12 +22,13 @@ An asset role belongs\_to a page\_attachment, not an asset. On the page edit vie
 
 Then, you could use this radius code to select the page_icon e.g. for the current page:
 
-    <r:assets:first roles="page_icon"><r:asset:image /></r:assets:first>
+    <r:asset:image roles="page_icon" />
 
 or do things like:
 
-    <ul class="gallery"><r:assets:each roles="portfolio" order="desc" by="position">
+    <ul class="gallery"><r:assets:each roles="portfolio|cover" order="desc" by="position">
       <li><r:asset:image size="thumbnail"/></li>
     </ul></r:assets:each>
 
-So, r:assets:each, r:assets:first and r:assets:last, r:if\_assets and r:unless_assets all take a 'roles' attribute now.
+So, r:assets:each, r:asset, r:if\_assets and r:unless_assets all take a 'roles' attribute now.
+If more than one role is provided in the context of r:asset, the first matched asset will be returned.
