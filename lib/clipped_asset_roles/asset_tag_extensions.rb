@@ -1,6 +1,8 @@
 module ClippedAssetRoles::AssetTagExtensions
   include Radiant::Taggable
 
+  class TagError < StandardError; end
+
   def self.included(base)
     base.class_eval {
       alias_method_chain :assets_find_options, :roles
@@ -23,20 +25,6 @@ module ClippedAssetRoles::AssetTagExtensions
   end
   
   desc %{
-    References the first asset attached to the current page.  
-    
-    *Usage:* 
-    <pre><code><r:assets:first>...</r:assets:first></code></pre>
-  }
-  tag 'assets:first' do |tag|
-    if role = options.delete('role') && tag.locals.asset = tag.locals.page.attachments_with_role(role).first
-      tag.expand
-    elsif tag.locals.asset = tag.locals.page.assets.first
-      tag.expand
-    end
-  end
-  
-  desc %{
     Renders the contained elements only if the current contextual page has one or
     more assets. The @min_count@ attribute specifies the minimum number of required
     assets. You can also filter by extensions with the @extensions@ or @roles@ attribute.
@@ -51,15 +39,16 @@ module ClippedAssetRoles::AssetTagExtensions
   end
   
   def find_asset_with_roles(tag, options)
-    begin
-      find_asset_without_roles
-    rescue TagError
-      if role = options.delete('role')
-        tag.locals.asset = tag.locals.page.attachments_with_role(role).first
-      else
-        raise(TagError, "Asset not found.")
+    if tag.locals.asset.nil? and roles = options.delete('roles')
+      roles.split('|').each do |role|
+        tag.locals.asset = tag.locals.page.attachments_with_role(role).first.try(:asset)
+        return tag.locals.asset unless tag.locals.asset.nil?
       end
+      raise(TagError, "Asset not found.") unless tag.locals.asset
+    else
+      find_asset_without_roles(tag, options)
     end
+    tag.locals.asset
   end
   
   def assets_find_options_with_roles(tag)
@@ -73,9 +62,8 @@ module ClippedAssetRoles::AssetTagExtensions
         options[:conditions] = [ roles.map { |role| "asset_roles.role = ?" }.join(' OR '),
           *roles.map { |role| role } ]
       end
-      # raise options.to_s
+      
       options[:joins] = "INNER JOIN `page_attachments` pa ON `assets`.id = pa.asset_id INNER JOIN `asset_roles` ON (`asset_roles`.page_attachment_id = pa.id)"
-      # options[:joins] = [:page_attachments, :asset_roles]
     end
     options
   end
