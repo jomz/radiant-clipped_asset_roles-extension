@@ -34,8 +34,17 @@ module ClippedAssetRoles::AssetTagExtensions
   }
   tag 'if_assets' do |tag|
     count = tag.attr['min_count'] && tag.attr['min_count'].to_i || 1
-    assets = tag.locals.page.assets.count(:conditions => assets_find_options(tag)[:conditions])
+    assets = tag.locals.page.assets.count(:conditions => assets_find_options(tag)[:conditions], :joins => assets_find_options(tag)[:joins])
     tag.expand if assets >= count
+  end
+  
+  desc %{
+    The opposite of @<r:if_assets/>@.
+  }
+  tag 'unless_assets' do |tag|
+    count = tag.attr['min_count'] && tag.attr['min_count'].to_i || 1
+    assets = tag.locals.page.assets.count(:conditions => assets_find_options(tag)[:conditions], :joins => assets_find_options(tag)[:joins])
+    tag.expand unless assets >= count
   end
   
   def find_asset_with_roles(tag, options)
