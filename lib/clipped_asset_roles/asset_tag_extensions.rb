@@ -72,7 +72,7 @@ module ClippedAssetRoles::AssetTagExtensions
           *roles.map { |role| role } ]
       end
       
-      options[:joins] = "INNER JOIN `page_attachments` pa ON `assets`.id = pa.asset_id INNER JOIN `asset_roles` ON (`asset_roles`.page_attachment_id = pa.id)"
+      options[:joins] = "INNER JOIN `page_attachments` pa ON `assets`.id = pa.asset_id AND pa.page_id = #{tag.locals.page.id} INNER JOIN `asset_roles` ON (`asset_roles`.page_attachment_id = pa.id)"
     end
     options
   end
